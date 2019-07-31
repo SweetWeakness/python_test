@@ -12,10 +12,9 @@ class FTPserver:
     def upload(self, filename, filetype):  # upload function
         path = '/' + filename + '.' + filetype
 
-        if filetype == 'txt' or filetype == 'html' or filetype == 'rst':
-            self.ftp.storlines('/uploads' + path, open('.' + path, 'r'))
-        else:
-            self.ftp.storbinary('/uploads' + path, open('.' + path, 'rb'))
+        file = open('.' + path, 'rb')
+        self.ftp.storbinary('STOR /uploads' + path, file)
+        file.close()
 
     def close(self):
         self.ftp.close()
