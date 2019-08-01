@@ -2,9 +2,10 @@ import json
 import os
 import sys
 import ftplib
+from threading import Thread
 
 
-class FTPserver:
+class FTP_server:
 
     def __init__(self, host, username, password):
         self.ftp = ftplib.FTP()
@@ -41,24 +42,36 @@ class FTPserver:
         self.ftp.close()
 
 
-if __name__ == '__main__':
-
-    print('Print "file.type" ')  # getting info of the file
-    tmp = input().split('.')
+def upload_on_ftp(file):
+    tmp = file.split('.')
 
     if len(tmp) != 2:
-        sys.exit('Wrong input')
+        print('Wrong input (' + file + ')')
+        return
 
     file_name = tmp[0]
     file_type = tmp[1]
-    if not os.path.isfile('./' + file_name + '.json') or not os.path.isfile('./' + file_name + '.' + file_type):
-        sys.exit('File(s) not found')
+    if not os.path.isfile('./' + file_name + '.json') or \
+            not os.path.isfile('./' + file_name + '.' + file_type):
+        print('File(s) not found (' + file + ')')
+        return
 
     with open(file_name + '.json', "r") as read_file:  # starting to upload file
         data = json.load(read_file)
 
-        con = FTPserver(data["host"], data["username"], data["password"])
+        con = FTP_server(data["host"], data["username"], data["password"])
         con.upload(file_name, file_type)
         con.close()
 
 
+if __name__ == '__main__':
+
+    print('Print several files ("file.type") through the gap')  # getting info of the file
+
+    arr = input().split(' ')
+
+    for f in arr:
+        print(f)
+        thread = Thread(target=upload_on_ftp(f))
+        thread.start()
+        thread.join()
